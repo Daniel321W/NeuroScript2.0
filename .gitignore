@@ -14,3 +14,7 @@ media/
 /.idea/NeuroScript2.0.iml
 /.idea/inspectionProfiles/profiles_settings.xml
 /.idea/vcs.xml
+
+*.h5
+*.keras
+*.pb
