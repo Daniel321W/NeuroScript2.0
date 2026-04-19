@@ -8,3 +8,9 @@ __pycache__/
 *.py[cod]
 
 media/
+/.idea/.gitignore
+/.idea/misc.xml
+/.idea/modules.xml
+/.idea/NeuroScript2.0.iml
+/.idea/inspectionProfiles/profiles_settings.xml
+/.idea/vcs.xml
