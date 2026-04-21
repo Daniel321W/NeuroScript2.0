@@ -2,6 +2,8 @@ from pathlib import Path
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+ML_MODEL_PATH = BASE_DIR / "ml_models/model.h5"
+
 SECRET_KEY = 'django-insecure--dgjn1)v!vguw51d7ch_kc0hd1g&2ut*0dhj9bgzuoc3*^51*)'
 
 DEBUG = True
