@@ -1,13 +1,12 @@
-from ml.models.cnn_model import build_model
-from ml.utils.dataset import load_datasets, prepare
+from ..models.cnn_model import build_model
+from ..utils.dataset import load_datasets, prepare
 import tensorflow as tf
 
-DATA_DIR = "data/train"
+DATA_DIR = "analysis/ml/data/spiral"
 MODEL_PATH = "ml_models/model.h5"
 
 def train():
-    train_ds, val_ds = load_datasets(DATA_DIR)
-    print(train_ds.class_names)
+    train_ds, val_ds, _ = load_datasets(DATA_DIR)
     train_ds = prepare(train_ds)
     val_ds = prepare(val_ds)
 

@@ -20,7 +20,7 @@ def build_model(input_shape=(128, 32, 1)):
         layers.Conv2D(128, (3,3), activation='relu'),
         layers.MaxPooling2D(),
 
-        layers.Flatten(),
+        layers.GlobalAveragePooling2D(),
         layers.Dense(128, activation='relu'),
         layers.Dropout(0.5),
 

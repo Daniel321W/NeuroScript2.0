@@ -1,7 +1,7 @@
 import tensorflow as tf
 from tensorflow.keras.utils import image_dataset_from_directory
 
-IMG_SIZE = (128, 32)
+IMG_SIZE = (256, 128)
 BATCH_SIZE = 32
 
 """
@@ -34,6 +34,7 @@ def load_datasets(base_dir):
         color_mode="grayscale"
     )
 
+    print(train_ds.class_names)
     train_ds = train_ds.shuffle(1000)
 
     return train_ds, val_ds, test_ds
