@@ -1,20 +1,61 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="container mt-5">
+<div class="container-fluid mt-4">
+    
+
     <div class="row">
-        <div class="col-md-12">
-            <div class="p-5 mb-4 bg-light rounded-3 border">
-                <div class="container-fluid py-5">
-                    <h1 class="display-5 fw-bold text-primary">Witaj, <strong>{{ username }}</strong></h1>
-                    <hr class="my-4">
-                    <p>Tutaj się zrobi coś.</p>
-                    <form action="{% url 'logout' %}" method="post" style="display: inline;">
-                    {% csrf_token %}
-                    <button type="submit" class="btn btn-outline-danger shadow-sm">
-                        Wyloguj się
-                    </button>
-                </form>
+        <div class="col-md-3 mb-4">
+            <div class="card shadow-sm border-0">
+                <div class="card-body">
+                    <h5 class="card-title text-primary mb-3">
+                        Witaj <strong>{{ username }}.</strong>
+                    </h5>
+                    
+                    <div class="list-group list-group-flush mb-4">
+                        <a href="{% url 'patient_list' %}" class="list-group-item list-group-item-action rounded">
+                            Lista pacjentów
+                        </a>
+                        <a href="#" class="list-group-item list-group-item-action rounded">
+                            Historia analiz
+                        </a>
+                        <a href="#" class="list-group-item list-group-item-action rounded">
+                            Raporty diagnostyczne
+                        </a>
+                    </div>
+                    
+                    <hr>
+                    
+                    <form action="{% url 'logout' %}" method="post">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-outline-danger w-100 shadow-sm">
+                            Wyloguj się
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-9">
+            <div class="card shadow-sm border-0 bg-light">
+                <div class="card-body p-5 text-center">
+                    <h2 class="mb-3 text-primary fw-bold">Nowa Analiza Grafomotoryczna</h2>
+                    <p class="text-muted mb-4 fs-5">
+                        Wgraj zdjęcie próbki pisma pacjenta, aby rozpocząć proces analizy przy użyciu modelu ML.
+                    </p>
+                    
+                    <form action="#" method="post" enctype="multipart/form-data" class="bg-white p-4 rounded shadow-sm border">
+                        {% csrf_token %}
+                        
+                        <div class="mb-4 text-start">
+                            <label for="handwritingImage" class="form-label fw-bold">Wybierz zdjęcie próbki (JPG, PNG)</label>
+                            <input class="form-control form-control-lg" type="file" id="handwritingImage" name="handwriting_image" accept="image/*" required>
+                        </div>
+                        
+                        <button type="submit" class="btn btn-primary btn-lg px-5 shadow">
+                            Rozpocznij analizę ML
+                        </button>
+                    </form>
                 </div>
             </div>
         </div>
