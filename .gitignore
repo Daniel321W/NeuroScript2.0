@@ -17,6 +17,5 @@ media/
 *.h5
 *.keras
 *.pb
-db.sqlite3
 
 /analysis/ml/data
