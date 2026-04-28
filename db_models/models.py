@@ -1,25 +1,12 @@
 from django.db import models
 from django.contrib.auth.models import User
 
-"""
-class User(AbstractUser):
-    ROLE_CHOICES = (
-        ('lekarz', 'Lekarz'),
-        ('admin', 'Administrator'),
-    )
-
-    role = models.CharField(max_length=20, choices=ROLE_CHOICES)
-
-    def __str__(self):
-        return f"{self.username} ({self.role})"
-"""
 
 class Pacjent(models.Model):
     identyfikator_pacjenta = models.CharField(max_length=100, unique=True)
     rok_urodzenia = models.IntegerField()
     plec = models.CharField(max_length=10)
 
-    # relacja do lekarza (User)
     lekarz = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
