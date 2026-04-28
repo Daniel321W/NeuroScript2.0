@@ -28,22 +28,6 @@
                     
                     <form action="{% url 'logout' %}" method="post">
                         {% csrf_token %}
-                        <div class="mb-4 text-start">
-                            <label for="patientSelect" class="form-label fw-bold">Wybierz pacjenta</label>
-                            <div class="input-group">
-                                <select class="form-select form-select-lg" id="patientSelect" name="patient_id" required>
-                                    <option value="" disabled selected>-- Wybierz pacjenta z listy --</option>
-                                    {% for patient in patients %}
-                                        <option value="{{ patient.id }}">
-                                            {{ patient.identyfikator_pacjenta }} (Rok ur: {{ patient.rok_urodzenia }}, {{ patient.plec }})
-                                        </option>
-                                    {% endfor %}
-                                </select>
-                                <button class="btn btn-outline-secondary" type="button" id="btnNewPatient">
-                                    <i class="bi bi-person-plus-fill"></i> Nowy
-                                </button>
-                            </div>
-                        </div>
                         <button type="submit" class="btn btn-outline-danger w-100 shadow-sm">
                             Wyloguj się
                         </button>
@@ -62,6 +46,23 @@
                     
                     <form action="#" method="post" enctype="multipart/form-data" class="bg-white p-4 rounded shadow-sm border">
                         {% csrf_token %}
+
+                        <div class="mb-4 text-start">
+                            <label for="patientSelect" class="form-label fw-bold">Wybierz pacjenta</label>
+                            <div class="input-group">
+                                <select class="form-select form-select-lg" id="patientSelect" name="patient_id" required>
+                                    <option value="" disabled selected>-- Wybierz pacjenta z listy --</option>
+                                    {% for patient in patients %}
+                                        <option value="{{ patient.id }}">
+                                            {{ patient.identyfikator_pacjenta }} (Rok ur: {{ patient.rok_urodzenia }}, {{ patient.plec }})
+                                        </option>
+                                    {% endfor %}
+                                </select>
+                                <button class="btn btn-outline-secondary" type="button" id="btnNewPatient">
+                                    <i class="bi bi-person-plus-fill"></i> Nowy
+                                </button>
+                            </div>
+                        </div>
                         
                         <div class="mb-4 text-start">
                             <label for="handwritingImage" class="form-label fw-bold">Wybierz zdjęcie próbki (JPG, PNG)</label>
@@ -95,9 +96,8 @@
             <label for="modal_plec" class="form-label">Płeć</label>
             <select class="form-select" id="modal_plec" name="plec" required>
               <option value="" disabled selected>Wybierz...</option>
-              <option value="Mężczyzna">Mężczyzna</option>
               <option value="Kobieta">Kobieta</option>
-              <option value="Inna">Inna</option>
+              <option value="Mężczyzna">Mężczyzna</option>
             </select>
           </div>
         </div>
