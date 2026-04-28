@@ -16,9 +16,9 @@
                         <a href="{% url 'patient_list' %}" class="list-group-item list-group-item-action rounded">
                             Lista pacjentów
                         </a>
-                        <a href="#" class="list-group-item list-group-item-action rounded">
-                            Historia analiz
-                        </a>
+                        <a href="{% url 'historia_badan' %}" class="list-group-item list-group-item-action rounded">
+    Historia analiz
+</a>
                         <a href="#" class="list-group-item list-group-item-action rounded">
                             Raporty diagnostyczne
                         </a>
@@ -40,7 +40,7 @@
             <div class="card shadow-sm border-0 bg-light">
                 <div class="card-body p-5 text-center">
                     
-                    <form action="#" method="post" enctype="multipart/form-data" class="bg-white p-4 rounded shadow-sm border">
+                    <form action="{% url 'dodaj_badanie' %}" method="post" enctype="multipart/form-data" class="bg-white p-4 rounded shadow-sm border">
                         <h2 class="mb-3 text-primary fw-bold">Nowa Analiza Grafomotoryczna</h2>
                             <p class="text-muted mb-4 fs-5">
                                 Wgraj zdjęcie próbki pisma pacjenta, aby rozpocząć proces analizy przy użyciu modelu ML.
