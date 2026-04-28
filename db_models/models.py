@@ -1,17 +1,39 @@
 from django.db import models
 from django.contrib.auth.models import User
 
+"""
+class User(AbstractUser):
+    ROLE_CHOICES = (
+        ('lekarz', 'Lekarz'),
+        ('admin', 'Administrator'),
+    )
+
+    role = models.CharField(max_length=20, choices=ROLE_CHOICES)
+
+    def __str__(self):
+        return f"{self.username} ({self.role})"
+"""
 
 class Pacjent(models.Model):
-    identyfikator_pacjenta = models.CharField(max_length=100, unique=True)
-    rok_urodzenia = models.IntegerField()
-    plec = models.CharField(max_length=10)
+    from django.db import models
+from django.utils import timezone
 
-    lekarz = models.ForeignKey(
-        User,
-        on_delete=models.CASCADE,
-        related_name='pacjenci'
-    )
+class Pacjent(models.Model):
+    identyfikator_pacjenta = models.CharField(max_length=100, blank=True)
+    rok_urodzenia = models.IntegerField()
+    plec = models.CharField(max_length=20)
+    lekarz = models.ForeignKey('auth.User', on_delete=models.CASCADE, related_name='pacjenci')
+
+    def save(self, *args, **kwargs):
+        is_new = self.pk is None
+        super().save(*args, **kwargs)
+
+        if is_new and not self.identyfikator_pacjenta:
+            rok_2_cyfry = str(self.rok_urodzenia)[-2:]
+            minuta = timezone.now().strftime('%M')
+            self.identyfikator_pacjenta = f"P-{self.id}{rok_2_cyfry}/{minuta}"
+            
+            super().save(update_fields=['identyfikator_pacjenta'])
 
     def __str__(self):
         return self.identyfikator_pacjenta
