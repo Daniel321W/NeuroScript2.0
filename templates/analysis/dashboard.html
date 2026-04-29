@@ -38,7 +38,7 @@
 
         <div class="col-md-9">
             <div class="card shadow-sm border-0 bg-light">
-                <div class="card-body p-5 text-center">
+                <div class="card-body p-1 text-center">
                     
                     <form action="{% url 'dodaj_badanie' %}" method="post" enctype="multipart/form-data" class="bg-white p-4 rounded shadow-sm border">
                         <h2 class="mb-3 text-primary fw-bold">Nowa Analiza Grafomotoryczna</h2>
@@ -58,7 +58,7 @@
                                         </option>
                                     {% endfor %}
                                 </select>
-                                <button class="btn btn-outline-secondary" type="button" id="btnNewPatient">
+                                <button class="btn btn-success" type="button" id="btnNewPatient">
                                     <i class="bi bi-person-plus-fill"></i> Nowy
                                 </button>
                             </div>
@@ -70,7 +70,7 @@
                         </div>
                         
                         <button type="submit" class="btn btn-primary btn-lg px-5 shadow">
-                            Rozpocznij analizę ML
+                            Rozpocznij analizę obrazu
                         </button>
                     </form>
                 </div>
