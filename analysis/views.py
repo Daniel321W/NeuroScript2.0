@@ -8,7 +8,25 @@ from django.http import JsonResponse
 from django.shortcuts import render, get_object_or_404, redirect
 from django.db.models import Q
 from db_models.models import Pacjent
+from django.contrib.auth import authenticate, login
+from django.contrib.auth.forms import AuthenticationForm
 
+def admin_login(request):
+    if request.method == 'POST':
+        form = AuthenticationForm(request, data=request.POST)
+        if form.is_valid():
+            user = form.get_user()
+            if user.is_staff:
+                login(request, user)
+                return redirect('/admin/')
+            else:
+                return render(request, 'registration/admin_login.html', {
+                    'form': form,
+                    'error': 'To konto nie ma uprawnień administratora.'
+                })
+    else:
+        form = AuthenticationForm()
+    return render(request, 'registration/admin_login.html', {'form': form})
 
 @login_required
 @never_cache

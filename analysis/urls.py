@@ -2,6 +2,7 @@ from django.urls import path
 from . import views
 
 urlpatterns = [
+    path('admin-login/', views.admin_login, name='admin_login'),
     path('dashboard/', views.dashboard, name='dashboard'),
     path('patients/', views.patient_list, name='patient_list'),
     path('add-patient-ajax/', views.add_patient_ajax, name='add_patient_ajax'),

@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-4">
+            <div class="card shadow border-danger">
+                <div class="card-header bg-danger text-white text-center py-3">
+                    <h4 class="mb-0"><i class="bi bi-shield-lock"></i> Panel Administratora</h4>
+                </div>
+                <div class="card-body p-4">
+                    {% if error %}
+                        <div class="alert alert-danger">{{ error }}</div>
+                    {% endif %}
+                    <form method="post">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <label class="form-label">Login</label>
+                            {{ form.username }}
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Hasło</label>
+                            {{ form.password }}
+                        </div>
+                        <button type="submit" class="btn btn-danger w-100 shadow">Zaloguj się do systemu</button>
+                    </form>
+                </div>
+                <div class="card-footer text-center">
+                    <small><a href="{% url 'login' %}">Powrót do logowania lekarza</a></small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
