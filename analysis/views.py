@@ -1,3 +1,6 @@
+from django.core.files.storage import FileSystemStorage
+from django.contrib import messages
+from db_models.models import Badanie
 from django.shortcuts import redirect, render
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.cache import never_cache
@@ -5,6 +8,7 @@ from django.http import JsonResponse
 from django.shortcuts import render, get_object_or_404, redirect
 from django.db.models import Q
 from db_models.models import Pacjent
+
 
 @login_required
 @never_cache
@@ -75,3 +79,39 @@ def patient_delete(request, patient_id):
         pacjent.delete()
         
     return redirect('patient_list')
+
+@login_required
+def dodaj_badanie(request):
+    if request.method == 'POST':
+        pacjent_id = request.POST.get('patient_id')
+        plik = request.FILES.get('handwriting_image')
+        
+        if not pacjent_id or not plik:
+            messages.error(request, 'Błąd: Wybierz pacjenta z listy i dodaj zdjęcie próbki.')
+            return redirect('dashboard')
+            
+        pacjent = get_object_or_404(Pacjent, id=pacjent_id, lekarz=request.user)
+        
+        if not plik.name.lower().endswith(('.png', '.jpg', '.jpeg')):
+            messages.error(request, 'Błąd: Dozwolone są tylko pliki graficzne JPG i PNG.')
+            return redirect('dashboard')
+            
+        fs = FileSystemStorage()
+        nazwa_pliku = fs.save(f'badania/{plik.name}', plik)
+        sciezka_url = fs.url(nazwa_pliku)
+        
+        Badanie.objects.create(
+            pacjent=pacjent,
+            sciezka_do_pliku=sciezka_url
+        )
+        
+        messages.success(request, f'Pomyślnie wgrano próbkę dla pacjenta {pacjent.identyfikator_pacjenta}!')
+        return redirect('dashboard')
+
+    return redirect('dashboard')
+
+@login_required
+def historia_badan(request):
+    badania = Badanie.objects.filter(pacjent__lekarz=request.user).order_by('-data_wgrania')
+    
+    return render(request, 'analysis/historia_badan.html', {'badania': badania})

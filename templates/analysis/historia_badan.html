@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <h2 class="text-primary fw-bold">Historia analiz </h2>
+            <p class="text-muted">Lista wszystkich wgranych próbek .</p>
+        </div>
+        <div class="col-md-4 text-end">
+            <a href="{% url 'dashboard' %}" class="btn btn-outline-secondary">
+                <i class="bi bi-arrow-left"></i> Wróć do panelu
+            </a>
+        </div>
+    </div>
+
+    <div class="card shadow-sm border-0">
+        <div class="card-body p-0">
+            <table class="table table-hover mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>ID Badania</th>
+                        <th>Identyfikator Pacjenta</th>
+                        <th>Data wgrania</th>
+                        <th>Podgląd próbki</th>
+                        <th>Status AI</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for badanie in badania %}
+                    <tr>
+                        <td class="align-middle fw-bold">#{{ badanie.id }}</td>
+                        <td class="align-middle">{{ badanie.pacjent.identyfikator_pacjenta }}</td>
+                        <td class="align-middle">{{ badanie.data_wgrania|date:"d.m.Y, H:i" }}</td>
+                        <td class="align-middle">
+                            {% if badanie.sciezka_do_pliku %}
+                                <a href="{{ badanie.sciezka_do_pliku }}" target="_blank" class="btn btn-sm btn-primary">
+                                    Pokaż zdjęcie
+                                </a>
+                            {% else %}
+                                <span class="text-danger">Brak pliku</span>
+                            {% endif %}
+                        </td>
+                        <td class="align-middle">
+                            <span class="badge bg-warning text-dark">Oczekuje na AI</span>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="5" class="text-center py-4 text-muted">
+                            Nie wgrałeś jeszcze żadnych badań.
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

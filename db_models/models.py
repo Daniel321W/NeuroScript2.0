@@ -1,11 +1,18 @@
 from django.db import models
-from django.utils import timezone
 from django.contrib.auth.models import User
+from django.utils import timezone
 
 """
-class Pacjent(models.Model):
-    from django.db import models
-from django.utils import timezone
+class User(AbstractUser):
+    ROLE_CHOICES = (
+        ('lekarz', 'Lekarz'),
+        ('admin', 'Administrator'),
+    )
+
+    role = models.CharField(max_length=20, choices=ROLE_CHOICES)
+
+    def __str__(self):
+        return f"{self.username} ({self.role})"
 """
 
 class Pacjent(models.Model):
