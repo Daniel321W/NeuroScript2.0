@@ -17,5 +17,3 @@ media/
 *.h5
 *.keras
 *.pb
-
-/analysis/ml/data
