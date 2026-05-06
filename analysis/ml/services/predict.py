@@ -1,8 +1,10 @@
+import os
 import tensorflow as tf
+from django.conf import settings
 from .load_model import get_model
-from ml.utils.preprocessing import preprocess_image
+from analysis.ml.utils.preprocessing import preprocess_image
 
-MODEL_PATH = "ml_models/model.h5"
+MODEL_PATH = os.path.join(settings.BASE_DIR, "ml_models", "model.h5")
 
 def predict(file_bytes):
     model = get_model(MODEL_PATH)

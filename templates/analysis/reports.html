@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <h2 class="text-primary fw-bold">Raporty z analiz</h2>
+            <p class="text-muted">Przeglądaj wygenerowane raporty końcowe.</p>
+        </div>
+        <div class="col-md-4 text-end">
+            <a href="{% url 'dashboard' %}" class="btn btn-outline-secondary">
+                <i class="bi bi-arrow-left"></i> Wróć do panelu
+            </a>
+        </div>
+    </div>
+
+    <!-- Wyszukiwarka -->
+    <div class="row mb-3">
+        <div class="col-md-8 col-lg-7">
+            <form action="{% url 'reports' %}" method="get" class="d-flex">
+                <input type="text" name="search" class="form-control me-2" 
+                       placeholder="Szukaj po ID raportu, ID pacjenta lub dacie..." 
+                       value="{{ search_query }}">
+                <button type="submit" class="btn btn-outline-primary shadow-sm" title="Szukaj"><i class="bi bi-search"></i></button>
+                {% if search_query %}
+                    <a href="{% url 'reports' %}" class="btn btn-outline-secondary ms-2"><i class="bi bi-x-lg"></i></a>
+                {% endif %}
+            </form>
+        </div>
+    </div>
+
+    <div class="card shadow-sm border-0">
+        <div class="card-body p-0">
+            <table class="table table-hover mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th class="ps-4">ID Raportu</th>
+                        <th>Pacjent</th>
+                        <th>Wynik AI</th>
+                        <th>Data wygenerowania</th>
+                        <th class="text-end pe-4">Akcje</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for raport in raporty %}
+                    <tr>
+                        <td class="ps-4 align-middle fw-bold text-primary">#{{ raport.id }}</td>
+                        <td class="align-middle">
+                            <span class="badge bg-secondary me-2">{{ raport.wynik.badanie.pacjent.identyfikator_pacjenta }}</span>
+                            <small class="text-muted">(Badanie #{{ raport.wynik.badanie.id }})</small>
+                        </td>
+                        <td class="align-middle">
+                            <span class="fw-bold">{{ raport.wynik.prawdopodobienstwo_choroby|floatformat:1 }}%</span>
+                        </td>
+                        <td class="align-middle">{{ raport.data_utworzenia|date:"d.m.Y, H:i" }}</td>
+                        <td class="text-end pe-4">
+                            <div class="btn-group shadow-sm" role="group">
+                                <a href="{% url 'raport_podglad' raport.id %}" target="_blank" class="btn btn-sm btn-info text-white" title="Podgląd raportu">
+                                    <i class="bi bi-file-earmark-text"></i>
+                                </a>
+                                <a href="{% url 'raport_pobierz' raport.id %}" class="btn btn-sm btn-primary" title="Pobierz plik PDF">
+                                    <i class="bi bi-download"></i>
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="5" class="text-center py-5 text-muted">
+                            {% if search_query %}
+                                <h5>Brak wyników wyszukiwania</h5>
+                            {% else %}
+                                <h5>Brak raportów w systemie</h5>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

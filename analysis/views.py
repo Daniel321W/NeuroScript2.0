@@ -1,15 +1,15 @@
 from django.core.files.storage import FileSystemStorage
 from django.contrib import messages
-from db_models.models import Badanie
+from db_models.models import Pacjent, Badanie, WynikAnalizyAI, RaportKoncowy
 from django.shortcuts import redirect, render
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.cache import never_cache
-from django.http import JsonResponse
+from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render, get_object_or_404, redirect
 from django.db.models import Q
-from db_models.models import Pacjent
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.forms import AuthenticationForm
+from analysis.ml.services.predict import predict
 
 def admin_login(request):
     if request.method == 'POST':
@@ -32,12 +32,56 @@ def admin_login(request):
 @never_cache
 def dashboard(request):
     patients = Pacjent.objects.filter(lekarz=request.user)
-    
-    context = {
-        'username': request.user.username,
-        'patients': patients,
-    }
-    return render(request, 'analysis/dashboard.html', context)
+    return render(request, 'analysis/dashboard.html', {'patients': patients})
+
+@login_required
+def upload_badanie_ajax(request):
+    if request.method == 'POST':
+        patient_id = request.POST.get('patient_id')
+        plik_badania = request.FILES.get('badanie_plik')
+        
+        if patient_id and plik_badania:
+            pacjent = get_object_or_404(Pacjent, id=patient_id, lekarz=request.user)
+            
+            fs = FileSystemStorage()
+            nazwa_zapisana = fs.save(plik_badania.name, plik_badania)
+            sciezka_url = fs.url(nazwa_zapisana)
+            
+            badanie = Badanie.objects.create(pacjent=pacjent, sciezka_do_pliku=sciezka_url)
+            
+            try:
+                plik_badania.seek(0)
+                file_bytes = plik_badania.read()
+                wynik_ai = predict(file_bytes)
+                prawdziwy_wynik = round(wynik_ai["probability"] * 100, 2)
+                
+            except Exception as e:
+                badanie.delete()
+                return JsonResponse({'success': False, 'error': f'Błąd analizy AI: {str(e)}'})
+            
+            return JsonResponse({
+                'success': True,
+                'badanie_id': badanie.id,
+                'image_url': sciezka_url,
+                'ai_prob': prawdziwy_wynik
+            })
+            
+    return JsonResponse({'success': False, 'error': 'Brak danych lub pliku'})
+
+@login_required
+def save_raport_ajax(request):
+    if request.method == 'POST':
+        badanie_id = request.POST.get('badanie_id')
+        ai_prob = request.POST.get('ai_prob')
+        notatki = request.POST.get('notatki', '')
+        
+        badanie = get_object_or_404(Badanie, id=badanie_id, pacjent__lekarz=request.user)
+        
+        wynik = WynikAnalizyAI.objects.create(badanie=badanie, prawdopodobienstwo_choroby=float(ai_prob))
+        raport = RaportKoncowy.objects.create(wynik=wynik, notatki_lekarza=notatki)
+        
+        return JsonResponse({'success': True, 'raport_id': raport.id})
+    return JsonResponse({'success': False})
 
 @login_required
 def add_patient_ajax(request):
@@ -77,6 +121,34 @@ def patient_list(request):
         'patients': patients,
         'search_query': search_query
     })
+
+@login_required
+def historia_badan(request):
+    search_query = request.GET.get('search', '').strip()
+    
+    badania = Badanie.objects.filter(pacjent__lekarz=request.user)
+
+    if search_query:
+        filters = Q(pacjent__identyfikator_pacjenta__icontains=search_query)
+
+        if search_query.isdigit():
+            filters |= Q(id=search_query)
+
+        if len(search_query) == 4 and search_query.isdigit():
+            filters |= Q(data_wgrania__year=search_query)
+        else:
+            filters |= Q(data_wgrania__icontains=search_query)
+
+        badania = badania.filter(filters)
+
+    badania = badania.order_by('-data_wgrania')
+
+    context = {
+        'badania': badania,
+        'search_query': search_query,
+    }
+    
+    return render(request, 'analysis/historia_badan.html', context)
 
 @login_required
 def patient_edit(request, patient_id):
@@ -128,8 +200,6 @@ def dodaj_badanie(request):
 
     return redirect('dashboard')
 
-@login_required
-def historia_badan(request):
-    badania = Badanie.objects.filter(pacjent__lekarz=request.user).order_by('-data_wgrania')
-    
-    return render(request, 'analysis/historia_badan.html', {'badania': badania})
+def reports(request):
+    raporty = RaportKoncowy.objects.filter(wynik__badanie__pacjent__lekarz=request.user).order_by('-wynik__badanie__data_wgrania')
+    return render(request, 'analysis/reports.html', {'reports': raporty})
