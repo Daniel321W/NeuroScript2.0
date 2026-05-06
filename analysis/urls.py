@@ -10,7 +10,9 @@ urlpatterns = [
     path('patients/<int:patient_id>/delete/', views.patient_delete, name='patient_delete'),
     path('dodaj-badanie/', views.dodaj_badanie, name='dodaj_badanie'),
     path('historia/', views.historia_badan, name='historia_badan'),
-    path('reports/', views.reports, name='reports'),
     path('upload-badanie-ajax/', views.upload_badanie_ajax, name='upload_badanie_ajax'),
     path('save-raport-ajax/', views.save_raport_ajax, name='save_raport_ajax'),
+    path('reports/', views.report_list, name='report_list'),
+    path('reports/<int:report_id>/preview/', views.report_preview, name='report_preview'),
+    path('reports/<int:report_id>/download/', views.report_download, name='report_download'),
 ]

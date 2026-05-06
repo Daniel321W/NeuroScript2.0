@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <title>Raport Medyczny</title>
+    <style>
+        @page { size: A4; margin: 2cm; }
+        body { font-family: Arial, sans-serif; color: #333; line-height: 1.6; }
+        .header { text-align: center; border-bottom: 2px solid #0d6efd; padding-bottom: 10px; margin-bottom: 20px; }
+        .header h1 { color: #0d6efd; margin: 0; font-size: 24px; }
+        table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+        th { background-color: #f8f9fa; width: 30%; }
+        .image-container { text-align: center; margin: 20px 0; }
+        .image-container img { max-width: 300px; max-height: 300px; border: 1px solid #ccc; padding: 5px; }
+        .notes { background-color: #f8f9fa; padding: 15px; border-left: 4px solid #0d6efd; }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <h1>Raport z Analizy NeuroScript</h1>
+        <p>Data wygenerowania pliku: {% now "d.m.Y H:i" %}</p>
+    </div>
+
+    <h3>Dane Główne</h3>
+    <table>
+        <tr>
+            <th>Identyfikator Pacjenta</th>
+            <td>{{ raport.wynik.badanie.pacjent.identyfikator_pacjenta }}</td>
+        </tr>
+        <tr>
+            <th>Data wykonania badania</th>
+            <td>{{ raport.wynik.badanie.data_wgrania|date:"d.m.Y H:i" }}</td>
+        </tr>
+        <tr>
+            <th>Wynik analizy AI</th>
+            <td><strong>{{ raport.wynik.prawdopodobienstwo_choroby|floatformat:2 }}%</strong></td>
+        </tr>
+    </table>
+
+    <h3>Materiał badawczy</h3>
+    <div class="image-container">
+        <img src="{{ raport.wynik.badanie.sciezka_do_pliku }}" alt="Zdjęcie pacjenta">
+    </div>
+
+    <h3>Notatki Lekarza</h3>
+    <div class="notes">
+        {% if raport.notatki_lekarza %}
+            {{ raport.notatki_lekarza|linebreaks }}
+        {% else %}
+            <i>Brak dodatkowych notatek.</i>
+        {% endif %}
+    </div>
+
+</body>
+</html>

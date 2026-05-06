@@ -1,3 +1,5 @@
+from weasyprint import HTML
+from django.template.loader import render_to_string
 from django.core.files.storage import FileSystemStorage
 from django.contrib import messages
 from db_models.models import Pacjent, Badanie, WynikAnalizyAI, RaportKoncowy
@@ -200,6 +202,42 @@ def dodaj_badanie(request):
 
     return redirect('dashboard')
 
-def reports(request):
-    raporty = RaportKoncowy.objects.filter(wynik__badanie__pacjent__lekarz=request.user).order_by('-wynik__badanie__data_wgrania')
-    return render(request, 'analysis/reports.html', {'reports': raporty})
+@login_required
+def report_list(request):
+    search_query = request.GET.get('search', '').strip()
+    
+    reports = RaportKoncowy.objects.filter(wynik__badanie__pacjent__lekarz=request.user).order_by('-data_utworzenia')
+
+    if search_query:
+        reports = reports.filter(wynik__badanie__pacjent__identyfikator_pacjenta__icontains=search_query)
+
+    return render(request, 'analysis/reports.html', {
+        'reports': reports,
+        'search_query': search_query,
+    })
+
+def generate_pdf(request, report_id, as_attachment=False):
+    """Pomocnicza funkcja generująca PDF w locie"""
+    raport = get_object_or_404(RaportKoncowy, id=report_id, wynik__badanie__pacjent__lekarz=request.user)
+    
+    html_string = render_to_string('analysis/pdf_report.html', {'raport': raport}, request=request)
+    
+    pdf_file = HTML(string=html_string, base_url=request.build_absolute_uri('/')).write_pdf()
+    
+    response = HttpResponse(pdf_file, content_type='application/pdf')
+    nazwa_pliku = f"Report_{raport.wynik.badanie.pacjent.identyfikator_pacjenta}_{raport.data_utworzenia.strftime('%Y%m%d')}.pdf"
+    
+    if as_attachment:
+        response['Content-Disposition'] = f'attachment; filename="{nazwa_pliku}"'
+    else:
+        response['Content-Disposition'] = f'inline; filename="{nazwa_pliku}"'
+        
+    return response
+
+@login_required
+def report_preview(request, report_id):
+    return generate_pdf(request, report_id, as_attachment=False)
+
+@login_required
+def report_download(request, report_id):
+    return generate_pdf(request, report_id, as_attachment=True)
