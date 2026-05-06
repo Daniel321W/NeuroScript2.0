@@ -14,6 +14,26 @@
         </div>
     </div>
 
+<div class="row mb-3">
+    <div class="col-md-8 col-lg-7">
+        <form action="{% url 'historia_badan' %}" method="get" class="d-flex">
+            <input type="text" name="search" class="form-control me-2" 
+                   placeholder="Szukaj po ID badania, ID pacjenta lub dacie (RRRR-MM-DD)..." 
+                   value="{{ search_query }}">
+            
+            <button type="submit" class="btn btn-outline-primary shadow-sm" title="Szukaj">
+                <i class="bi bi-search"></i>
+            </button>
+            
+            {% if search_query %}
+                <a href="{% url 'historia_badan' %}" class="btn btn-outline-secondary ms-2" title="Wyczyść filtry">
+                    <i class="bi bi-x-lg"></i>
+                </a>
+            {% endif %}
+        </form>
+    </div>
+</div>
+
     <div class="card shadow-sm border-0">
         <div class="card-body p-0">
             <table class="table table-hover mb-0">
@@ -23,7 +43,7 @@
                         <th>Identyfikator Pacjenta</th>
                         <th>Data wgrania</th>
                         <th>Podgląd próbki</th>
-                        <th>Status AI</th>
+                        <th>Podgląd raportu</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -42,13 +62,33 @@
                             {% endif %}
                         </td>
                         <td class="align-middle">
-                            <span class="badge bg-warning text-dark">Oczekuje na AI</span>
+                            <a href="{{ badanie.sciezka_do_pliku }}" target="_blank" class="btn btn-sm btn-primary">
+                                    Pokaż raport
+                                </a>
                         </td>
                     </tr>
                     {% empty %}
                     <tr>
-                        <td colspan="5" class="text-center py-4 text-muted">
-                            Nie wgrałeś jeszcze żadnych badań.
+                        <td colspan="5" class="text-center py-5 text-muted">
+                            {% if search_query %}
+                                <div class="py-3">
+                                    <i class="bi bi-search mb-3 d-block fs-2 opacity-50"></i>
+                                    <h5>Brak wyników wyszukiwania</h5>
+                                    <p>Nie znaleźliśmy badań pasujących do frazy: <strong>"{{ search_query }}"</strong></p>
+                                    <a href="{% url 'historia_badan' %}" class="btn btn-sm btn-outline-secondary mt-2">
+                                        Pokaż wszystkie badania
+                                    </a>
+                                </div>
+                            {% else %}
+                                <div class="py-3">
+                                    <i class="bi bi-cloud-upload mb-3 d-block fs-2 opacity-50"></i>
+                                    <h5>Brak badań w systemie</h5>
+                                    <p>Nie wgrałeś jeszcze żadnych próbek do analizy.</p>
+                                    <a href="{% url 'dashboard' %}" class="btn btn-sm btn-primary mt-2">
+                                        Wgraj pierwsze badanie
+                                    </a>
+                                </div>
+                            {% endif %}
                         </td>
                     </tr>
                     {% endfor %}

@@ -4,7 +4,7 @@ from db_models.models import Pacjent, Badanie, WynikAnalizyAI, RaportKoncowy
 from django.shortcuts import redirect, render
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.cache import never_cache
-from django.http import JsonResponse
+from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render, get_object_or_404, redirect
 from django.db.models import Q
 from django.contrib.auth import authenticate, login
@@ -123,6 +123,34 @@ def patient_list(request):
     })
 
 @login_required
+def historia_badan(request):
+    search_query = request.GET.get('search', '').strip()
+    
+    badania = Badanie.objects.filter(pacjent__lekarz=request.user)
+
+    if search_query:
+        filters = Q(pacjent__identyfikator_pacjenta__icontains=search_query)
+
+        if search_query.isdigit():
+            filters |= Q(id=search_query)
+
+        if len(search_query) == 4 and search_query.isdigit():
+            filters |= Q(data_wgrania__year=search_query)
+        else:
+            filters |= Q(data_wgrania__icontains=search_query)
+
+        badania = badania.filter(filters)
+
+    badania = badania.order_by('-data_wgrania')
+
+    context = {
+        'badania': badania,
+        'search_query': search_query,
+    }
+    
+    return render(request, 'analysis/historia_badan.html', context)
+
+@login_required
 def patient_edit(request, patient_id):
     pacjent = get_object_or_404(Pacjent, id=patient_id, lekarz=request.user)
     
@@ -172,8 +200,6 @@ def dodaj_badanie(request):
 
     return redirect('dashboard')
 
-@login_required
-def historia_badan(request):
-    badania = Badanie.objects.filter(pacjent__lekarz=request.user).order_by('-data_wgrania')
-    
-    return render(request, 'analysis/historia_badan.html', {'badania': badania})
+def reports(request):
+    raporty = RaportKoncowy.objects.filter(wynik__badanie__pacjent__lekarz=request.user).order_by('-wynik__badanie__data_wgrania')
+    return render(request, 'analysis/reports.html', {'reports': raporty})
