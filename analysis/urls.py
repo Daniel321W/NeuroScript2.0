@@ -10,4 +10,6 @@ urlpatterns = [
     path('patients/<int:patient_id>/delete/', views.patient_delete, name='patient_delete'),
     path('dodaj-badanie/', views.dodaj_badanie, name='dodaj_badanie'),
     path('historia/', views.historia_badan, name='historia_badan'),
+    path('upload-badanie-ajax/', views.upload_badanie_ajax, name='upload_badanie_ajax'),
+    path('save-raport-ajax/', views.save_raport_ajax, name='save_raport_ajax'),
 ]

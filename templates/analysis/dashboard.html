@@ -9,7 +9,7 @@
             <div class="card shadow-sm border-0">
                 <div class="card-body">
                     <h5 class="card-title text-primary mb-3">
-                        Witaj <strong>{{ username }}.</strong>
+                        Witaj <strong>{{ user.username }}</strong>
                     </h5>
                     
                     <div class="list-group list-group-flush mb-4">
@@ -38,12 +38,12 @@
 
         <div class="col-md-9">
             <div class="card shadow-sm border-0 bg-light">
-                <div class="card-body p-1 text-center">
+                <div id="uploadSection" class="card-body p-1 text-center">
                     
-                    <form action="{% url 'dodaj_badanie' %}" method="post" enctype="multipart/form-data" class="bg-white p-4 rounded shadow-sm border">
-                        <h2 class="mb-3 text-primary fw-bold">Nowa Analiza Grafomotoryczna</h2>
+                    <form id="uploadForm" method="post" enctype="multipart/form-data" class="bg-white p-4 rounded shadow-sm border">
+                        <h2 class="mb-3 text-primary fw-bold">Nowa Analiza</h2>
                             <p class="text-muted mb-4 fs-5">
-                                Wgraj zdjęcie próbki pisma pacjenta, aby rozpocząć proces analizy przy użyciu modelu ML.
+                                Wgraj zdjęcie spirali narysowanej przez pacjenta, aby rozpocząć proces analizy.
                             </p>
                         {% csrf_token %}
 
@@ -65,8 +65,9 @@
                         </div>
                         
                         <div class="mb-4 text-start">
-                            <label for="handwritingImage" class="form-label fw-bold">Wybierz zdjęcie próbki (JPG, PNG)</label>
-                            <input class="form-control form-control-lg" type="file" id="handwritingImage" name="handwriting_image" accept="image/*" required>
+                            <label for="imageUpload" class="form-label fw-bold">Wgraj zdjęcie próbki (JPG, PNG)</label>
+                            <input class="form-control form-control-lg" type="file" id="imageUpload" name="badanie_plik" accept="image/*" required>
+                            <div class="form-text">Dozwolone formaty: JPG, PNG. Upewnij się, że tekst jest wyraźny i dobrze oświetlony.</div>
                         </div>
                         
                         <button type="submit" class="btn btn-primary btn-lg px-5 shadow">
@@ -74,6 +75,36 @@
                         </button>
                     </form>
                 </div>
+                <div id="analysisSection" class="bg-white p-4 rounded shadow-sm d-none text-center">
+                <h4 class="mb-3">Podgląd próbki</h4>
+                <img id="previewImage" src="" alt="Podgląd badania" class="img-fluid rounded mb-4 shadow-sm" style="max-height: 300px;">
+                
+                <div id="loadingSpinner" class="py-4">
+                    <div class="spinner-border text-primary" style="width: 3rem; height: 3rem;" role="status">
+                        <span class="visually-hidden">Ładowanie...</span>
+                    </div>
+                    <p class="mt-3 text-muted fw-bold">Trwa analiza...</p>
+                </div>
+
+                <div id="resultBox" class="d-none text-start">
+                    <div class="alert alert-info shadow-sm text-center">
+                        <h5 class="mb-0">Wykryte prawdopodobieństwo: <span id="aiResultText" class="fw-bold fs-4 text-danger"></span></h5>
+                    </div>
+                    
+                    <div class="mb-3 mt-4">
+                        <label class="form-label fw-bold">Notatki lekarza (Opcjonalne)</label>
+                        <textarea id="doctorNotes" class="form-control" rows="3" placeholder="Wpisz swoje spostrzeżenia..."></textarea>
+                    </div>
+                    
+                    <div class="d-flex justify-content-between mt-4">
+                        <button type="button" id="btnCancel" class="btn btn-outline-danger">Anuluj</button>
+                        <div>
+                            <button type="button" id="btnSave" class="btn btn-secondary me-2">Zapisz</button>
+                            <button type="button" id="btnSaveAndGo" class="btn btn-success shadow">Zapisz i przejdź do raportu</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
             </div>
         </div>
     </div>
@@ -146,6 +177,90 @@ document.addEventListener('DOMContentLoaded', function() {
                 alert("Błąd: " + data.error);
             }
         });
+    });
+});
+</script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const uploadForm = document.getElementById('uploadForm');
+    const uploadSection = document.getElementById('uploadSection');
+    const analysisSection = document.getElementById('analysisSection');
+    const previewImage = document.getElementById('previewImage');
+    const loadingSpinner = document.getElementById('loadingSpinner');
+    const resultBox = document.getElementById('resultBox');
+    const aiResultText = document.getElementById('aiResultText');
+    
+    let currentBadanieId = null;
+    let currentAiProb = null;
+
+    uploadForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        const formData = new FormData(uploadForm);
+
+        fetch("{% url 'upload_badanie_ajax' %}", {
+            method: "POST",
+            body: formData,
+            headers: { "X-CSRFToken": "{{ csrf_token }}" }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                currentBadanieId = data.badanie_id;
+                currentAiProb = data.ai_prob;
+
+                uploadSection.classList.add('d-none');
+                analysisSection.classList.remove('d-none');
+                previewImage.src = data.image_url;
+                loadingSpinner.classList.remove('d-none');
+                resultBox.classList.add('d-none');
+
+                setTimeout(() => {
+                    loadingSpinner.classList.add('d-none');
+                    aiResultText.innerText = currentAiProb + "%";
+                    resultBox.classList.remove('d-none');
+                }, 2500);
+            } else {
+                alert("Wystąpił błąd AI: " + data.error);
+                uploadForm.reset();
+                analysisSection.classList.add('d-none');
+                uploadSection.classList.remove('d-none');
+            }
+        });
+    });
+
+    function saveReport(redirectAfter) {
+        const notes = document.getElementById('doctorNotes').value;
+        const formData = new FormData();
+        formData.append('badanie_id', currentBadanieId);
+        formData.append('ai_prob', currentAiProb);
+        formData.append('notatki', notes);
+
+        fetch("{% url 'save_raport_ajax' %}", {
+            method: "POST",
+            body: formData,
+            headers: { "X-CSRFToken": "{{ csrf_token }}" }
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) {
+                if (redirectAfter) {
+                    alert("Zapisano! W przyszłości przeniesie do raportu " + data.raport_id);
+                    window.location.href = "{% url 'dashboard' %}"; 
+                } else {
+                    alert("Zapisano pomyślnie!");
+                    window.location.href = "{% url 'dashboard' %}";
+                }
+            }
+        });
+    }
+
+    document.getElementById('btnSave').addEventListener('click', () => saveReport(false));
+    document.getElementById('btnSaveAndGo').addEventListener('click', () => saveReport(true));
+    
+    document.getElementById('btnCancel').addEventListener('click', () => {
+        uploadForm.reset();
+        analysisSection.classList.add('d-none');
+        uploadSection.classList.remove('d-none');
     });
 });
 </script>
