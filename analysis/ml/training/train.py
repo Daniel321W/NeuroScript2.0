@@ -15,11 +15,11 @@ def train():
     model.fit(
         train_ds,
         validation_data=val_ds,
-        epochs=20,
+        epochs=100, 
         callbacks=[
             tf.keras.callbacks.EarlyStopping(
                 monitor='val_loss',
-                patience=3,
+                patience=15, 
                 restore_best_weights=True
             ),
             tf.keras.callbacks.ModelCheckpoint(
@@ -30,7 +30,6 @@ def train():
         ]
     )
 
-    # model.save(MODEL_PATH)
     print("Model zapisany!")
 
 if __name__ == "__main__":
