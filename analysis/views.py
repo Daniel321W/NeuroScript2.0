@@ -206,10 +206,20 @@ def dodaj_badanie(request):
 def report_list(request):
     search_query = request.GET.get('search', '').strip()
     
-    reports = RaportKoncowy.objects.filter(wynik__badanie__pacjent__lekarz=request.user).order_by('-data_utworzenia')
+    reports = RaportKoncowy.objects.filter(
+        wynik__badanie__pacjent__lekarz=request.user
+    ).order_by('-data_utworzenia')
 
     if search_query:
-        reports = reports.filter(wynik__badanie__pacjent__identyfikator_pacjenta__icontains=search_query)
+        if search_query.isdigit():
+            reports = reports.filter(
+                Q(id=search_query) | 
+                Q(wynik__badanie__pacjent__identyfikator_pacjenta__iexact=search_query)
+            )
+        else:
+            reports = reports.filter(
+                wynik__badanie__pacjent__identyfikator_pacjenta__icontains=search_query
+            )
 
     return render(request, 'analysis/reports.html', {
         'reports': reports,

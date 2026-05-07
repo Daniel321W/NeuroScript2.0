@@ -244,9 +244,8 @@ document.addEventListener('DOMContentLoaded', function() {
         .then(data => {
             if (data.success) {
                 if (redirectAfter) {
-                    alert("Zapisano! W przyszłości przeniesie do raportu " + data.raport_id);
-                    window.location.href = "{% url 'dashboard' %}"; 
-                } else {
+                window.location.href = "{% url 'report_list' %}?search=" + data.raport_id;
+                    } else {
                     alert("Zapisano pomyślnie!");
                     window.location.href = "{% url 'dashboard' %}";
                 }
