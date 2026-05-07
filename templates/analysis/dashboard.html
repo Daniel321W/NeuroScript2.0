@@ -256,8 +256,29 @@ document.addEventListener('DOMContentLoaded', function() {
     document.getElementById('btnSave').addEventListener('click', () => saveReport(false));
     document.getElementById('btnSaveAndGo').addEventListener('click', () => saveReport(true));
     
-    document.getElementById('btnCancel').addEventListener('click', () => {
+document.getElementById('btnCancel').addEventListener('click', () => {
+
+        if (currentBadanieId) {
+            const formData = new FormData();
+            formData.append('badanie_id', currentBadanieId);
+
+            fetch("{% url 'cancel_badanie_ajax' %}", {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-CSRFToken': "{{ csrf_token }}" 
+                }
+            }).then(response => response.json())
+              .then(data => {
+                  currentBadanieId = null; 
+                  currentAiProb = null;
+              }).catch(error => {
+                  console.error("Błąd podczas usuwania badania:", error);
+              });
+        }
+
         uploadForm.reset();
+        document.getElementById('doctorNotes').value = "";
         analysisSection.classList.add('d-none');
         uploadSection.classList.remove('d-none');
     });

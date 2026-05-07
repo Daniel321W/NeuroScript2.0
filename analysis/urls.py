@@ -11,6 +11,7 @@ urlpatterns = [
     path('dodaj-badanie/', views.dodaj_badanie, name='dodaj_badanie'),
     path('historia/', views.historia_badan, name='historia_badan'),
     path('upload-badanie-ajax/', views.upload_badanie_ajax, name='upload_badanie_ajax'),
+    path('cancel-badanie-ajax/', views.cancel_badanie_ajax, name='cancel_badanie_ajax'),
     path('save-raport-ajax/', views.save_raport_ajax, name='save_raport_ajax'),
     path('reports/', views.report_list, name='report_list'),
     path('reports/<int:report_id>/preview/', views.report_preview, name='report_preview'),

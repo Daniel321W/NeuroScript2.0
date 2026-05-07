@@ -203,6 +203,17 @@ def dodaj_badanie(request):
     return redirect('dashboard')
 
 @login_required
+def cancel_badanie_ajax(request):
+    if request.method == 'POST':
+        badanie_id = request.POST.get('badanie_id')
+        if badanie_id:
+            badanie = get_object_or_404(Badanie, id=badanie_id, pacjent__lekarz=request.user)
+            badanie.delete()
+            return JsonResponse({'success': True})
+            
+    return JsonResponse({'success': False})
+
+@login_required
 def report_list(request):
     search_query = request.GET.get('search', '').strip()
     
