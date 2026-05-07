@@ -19,7 +19,7 @@
 <body>
 
     <div class="header">
-        <h1>Raport z Analizy NeuroScript</h1>
+        <h1>Raport z Analizy NeuroScript2.0</h1>
         <p>Data wygenerowania pliku: {% now "d.m.Y H:i" %}</p>
     </div>
 
@@ -34,7 +34,7 @@
             <td>{{ raport.wynik.badanie.data_wgrania|date:"d.m.Y H:i" }}</td>
         </tr>
         <tr>
-            <th>Wynik analizy AI</th>
+            <th>Wynik analizy</th>
             <td><strong>{{ raport.wynik.prawdopodobienstwo_choroby|floatformat:2 }}%</strong></td>
         </tr>
     </table>
