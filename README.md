@@ -1,46 +1,74 @@
-HOW TO RUN?
+🚀 NeuroScript 2.0 — Installation Guide
+1️⃣ Clone the repository
 
-STEP 1
-Download project via following command:
+First, download the project from GitHub:
 
 git clone https://github.com/Daniel321W/NeuroScript2.0.git
+2️⃣ Create a virtual environment
 
-STEP 2
-Then, go to the location where your project is located and run command in NeuroScript2.0/
+Go to the project directory:
+
+cd NeuroScript2.0
+
+Create a virtual environment:
 
 python -m venv venv
-
-STEP 3
-And run virtual enviornment using command:
-
-ON WINDOWS
-
-venv\Scripts\Activate.ps1 (in PS)
-venv\Scripts\Activate.bat (in CMD)
-
-ON LINUX
-
+3️⃣ Activate the virtual environment
+🪟 Windows
+PowerShell
+venv\Scripts\Activate.ps1
+CMD
+venv\Scripts\Activate.bat
+🐧 Linux
 source venv/bin/activate
+4️⃣ Install required dependencies
 
-STEP 4
-Once your environment has been activated - you can install all required libraries by following command:
+After activating the environment, install all required libraries:
 
 pip install -r requirements.txt
+5️⃣ Run the application
 
-STEP 5
-And launch app using:
+Start the development server:
 
-python manage.py runserver (your service should be available under: http://localhost:8000/accounts/login/)
+python manage.py runserver
 
-In case of following error:
+The application should now be available at:
 
-OSError: cannot load library 'gobject-2.0-0': error 0x7e.  Additionally, ctypes.util.find_library() did not manage to locate a library called 'gobject-2.0-0'
+http://localhost:8000/accounts/login/
+⚠️ Fix for gobject-2.0-0 Error (Windows)
 
-1. download msys2 from https://www.msys2.org/
-2. install application
-3. run app
-4. put following command: pacman -S mingw-w64-x86_64-pango
-5. put enter
-6. Then add this path to your env PATH: "C:\msys64\mingw64\bin"
-7. restart your pc
-8. Try again (go back to STEP 3)
+If you encounter the following error:
+
+OSError: cannot load library 'gobject-2.0-0'
+
+follow these steps.
+
+Install MSYS2
+
+Download and install MSYS2:
+
+👉 https://www.msys2.org/
+
+Install required package
+
+Open the MSYS2 terminal and run:
+
+pacman -S mingw-w64-x86_64-pango
+
+Press Enter to confirm installation.
+
+Add MSYS2 to PATH
+
+Add the following directory to your system PATH:
+
+C:\msys64\mingw64\bin
+Restart your computer
+
+After restarting:
+
+Activate the virtual environment again
+Run the server
+python manage.py runserver
+✅ Done
+
+Your NeuroScript 2.0 application should now work correctly.
